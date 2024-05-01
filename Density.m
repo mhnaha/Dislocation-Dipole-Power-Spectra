@@ -6,9 +6,9 @@ TEMP = 300.0;   % Temperature
 output = sprintf('MgAl-Screw%.1f',TEMP);    % output file generation
 
 %pcutoff = 6;
-interp = 400; % number of cells along the y direction 
+interp = 800; % number of cells along the y direction 
 
-latparam = 10; % Lattice parameter (change if you want). Should not necessarily be the same as lattice paprameter
+latparam = 4.7; % Lattice parameter (change if you want). Should not necessarily be the same as lattice paprameter
 
 binsize = latparam;   
 savename = sprintf('%s-%.2f.mat',output,binsize);
@@ -18,7 +18,7 @@ plotname = sprintf('%s-%.2f.tiff',output,binsize);
 %make_video = 0;
 
 dump_start =1;% first input dump file frame number to be read  
-dump_end = 2000;%  last input dump file frame number to be read 
+dump_end = 8780;%  last input dump file frame number to be read 
 %dump_end = 6044;%  last input dump file frame number to be read 
 
 ddump = 1;  % read each dump file, or every two dump, so on and so forth 
@@ -301,22 +301,21 @@ for run = 1:runs
         i12(run,nn) = iy(max(MAX1));
         i21(run,nn) = iy(min(MIN2));
         i22(run,nn) = iy(max(MAX2));
+        %i1ave(run,nn) = (i11(run,nn) + i12(run,nn))/2; % Copy i11 values
+        %i2ave(run,nn) = (i21(run,nn) + i22(run,nn))/2; % Copy i11 values
+    end    
+    % Calculate the size of the matrices
+    %[num_runs, num_nn] = size(i11);
 
- 
-    end
-    i111 = zeros(size(i11, 1), size(i11, 2) * 2); % Preallocate i111 as a matrix
-    i222 = zeros(size(i21, 1), size(i21, 2) * 2); % Preallocate i222 as a matrix
-
+    % Initialize i1ave matrix
+    %i1ave = zeros(num_runs, num_nn);
+    %i2ave = zeros(num_runs, num_nn);
     for nn = 1:nx
     % Concatenate columns of i11 and i12 into i111
-        i111(:, (nn-1)*2+1) = i11(:, nn); % Copy i11 values
-        i111(:, (nn-1)*2+2) = i12(:, nn); % Copy i12 values
-    
-    % Concatenate columns of i21 and i22 into i222
-        i222(:, (nn-1)*2+1) = i21(:, nn); % Copy i21 values
-        i222(:, (nn-1)*2+2) = i22(:, nn); % Copy i22 values
-    end
-    
+        i1ave(:,nn) = (i11(:,nn) + i12(:,nn))/2; % Copy i11 values
+        i2ave(:,nn) = (i21(:,nn) + i22(:,nn))/2; % Copy i11 values
+    end   
+
     subplot(2,2,1)
     plot(Py1(:,1),iy)    
     title('Py1,iy')
@@ -396,4 +395,4 @@ for run = 1:runs
     
 end
 
-save(savename,'ix','i11','i12','i21','i22','i111','i222','dPy1','dPy2')
+save(savename,'ix','i11','i12','i21','i22','i1ave','i2ave')
