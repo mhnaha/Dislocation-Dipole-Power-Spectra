@@ -3,8 +3,8 @@ close all
 clear all
 %%%%%%%%%%%
 %binsize = 4.0478;
-binsize = 2.5;
-int = 400; % interpolation 
+binsize = 4.7;
+int = 800; % interpolation 
 mbin = binsize/2; % moving average cutoff in angstrom
 T = 300;
 %%%%%%%%%%%
@@ -41,6 +41,18 @@ plot(ix,i22)
 xlabel('ix') 
 ylabel('i22')
 axis equal
+figure(2)
+subplot(2,2,1)
+plot(ix,i1ave)
+xlabel('ix') 
+ylabel('i1ave')
+axis equal
+
+subplot(2,2,2)
+plot(ix,i2ave)
+xlabel('ix') 
+ylabel('i2ave')
+axis equal
 %%%%%%%%%%%
 runs = length(i11(:,1));
 %oN = length(i11(1,:));
@@ -60,7 +72,12 @@ for run = 1:runs
     ii12(run,:) = interp1(ix,i12(run,:),iix,'pchip');
     ii21(run,:) = interp1(ix,i21(run,:),iix,'pchip');
     ii22(run,:) = interp1(ix,i22(run,:),iix,'pchip');
+    ii111(run,:) = interp1(ix,i1ave(run,:),iix,'pchip');
+    ii222(run,:) = interp1(ix,i2ave(run,:),iix,'pchip');
+
 end
+
+
 %%%%%%%%%%%
 
 for run = 1:runs
@@ -69,21 +86,29 @@ for run = 1:runs
             si11(run,n) = mean(ii11(run,1:n+MA));
             si12(run,n) = mean(ii12(run,1:n+MA));
             si21(run,n) = mean(ii21(run,1:n+MA));
-            si22(run,n) = mean(ii22(run,1:n+MA));
+            si22(run,n) = mean(ii22(run,1:n+MA));        
+            si111(run,n) = mean(ii111(run,1:n+MA));        
+            si222(run,n) = mean(ii222(run,1:n+MA));        
+
         else if n >= N-MA
                 si11(run,n) = mean(ii11(run,n-MA:end));
                 si12(run,n) = mean(ii12(run,n-MA:end));
                 si21(run,n) = mean(ii21(run,n-MA:end));
                 si22(run,n) = mean(ii22(run,n-MA:end));
+                si111(run,n) = mean(ii111(run,n-MA:end));
+                si222(run,n) = mean(ii222(run,n-MA:end));                
             else
                 si11(run,n) = mean(ii11(run,n-MA:n+MA));
                 si12(run,n) = mean(ii12(run,n-MA:n+MA));
                 si21(run,n) = mean(ii21(run,n-MA:n+MA));
                 si22(run,n) = mean(ii22(run,n-MA:n+MA));
+                si111(run,n) = mean(ii111(run,n-MA:n+MA));
+                si222(run,n) = mean(ii222(run,n-MA:n+MA));           
             end
         end
     end
 end
+%%%%
 
 %%%%%%%%%%% uninterpolate
 for run = 1:runs
@@ -91,12 +116,15 @@ for run = 1:runs
     sii12(run,:) = interp1(iix,si12(run,:),ix,'pchip');
     sii21(run,:) = interp1(iix,si21(run,:),ix,'pchip');
     sii22(run,:) = interp1(iix,si22(run,:),ix,'pchip');
+    sii111(run,:) = interp1(iix,si111(run,:),ix,'pchip');
+    sii222(run,:) = interp1(iix,si222(run,:),ix,'pchip');
+
 end
 
       
 %%%%%%%%%%%
 
-figure(2)
+figure(3)
 subplot(2,2,1)
 plot(ix,sii11)
 xlabel('ix') 
@@ -124,12 +152,30 @@ xlabel('ix')
 ylabel('sii22')
 axis equal
 title('After Smoothing')
-clearvars -except ix sii11 sii12 sii21 sii22 savename
+
+figure(3)
+subplot(2,2,1)
+plot(ix,sii111)
+xlabel('ix') 
+ylabel('sii111')
+axis equal
+title('After Smoothing')
+
+subplot(2,2,2)
+plot(ix,sii111)
+xlabel('ix') 
+ylabel('sii222')
+axis equal
+title('After Smoothing')
+
+clearvars -except ix sii11 sii12 sii21 sii22 sii111 sii222 savename
 i11 = sii11;
 i12 = sii12;
 i21 = sii21;
 i22 = sii22;
+i111 = sii111;
+i222 = sii222;
 
-clearvars sii11 sii12 sii21 sii22
+clearvars sii11 sii12 sii21 sii22 sii111 sii222
 
-save(savename,'ix','i11','i12','i21','i22')
+save(savename,'ix','i11','i12','i21','i22', 'i111', 'i222')
